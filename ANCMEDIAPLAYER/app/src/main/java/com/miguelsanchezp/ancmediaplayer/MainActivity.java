@@ -10,12 +10,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button ANCButton;
-    private TextView tv;
+
+    public static boolean ANCStatus = false;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -29,17 +29,23 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, permissions, 1);
         }
 
-        tv = findViewById(R.id.textView);
+        final Thread ANCT = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ANC.performANC();
+            }
+        });
+
         ANCButton = findViewById(R.id.ancbutton);
         ANCButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ANC.performANC();
-                    }
-                }).start();
+                ANCStatus = !ANCStatus;
+                if (ANCStatus) {
+                    ANCT.start();
+                }else{
+                    ANCT.interrupt();
+                }
             }
         });
     }

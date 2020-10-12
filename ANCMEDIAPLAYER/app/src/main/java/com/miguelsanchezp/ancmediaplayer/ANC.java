@@ -17,15 +17,18 @@ public class ANC {
 
     private static final int GAUSSIAN = 0;
     private static final int PARABOLIC = 1;
-
     private static final String TAG = "ANC";
 
     public static void performANC () {
-        values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
-        fft_values = fft (values, 4096);
-        analyse (fft_values, 4096, GAUSSIAN);
-        Log.d(TAG, "performANC: " + values[254]);
+        while (MainActivity.ANCStatus) {
+            values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
+            fft_values = fft(values, 4096);
+            analyse(fft_values, 4096, GAUSSIAN);
+        }
+        //Do release of the audiorecord
     }
+
+    //Optimization of the buffer variables and all this stuff
 
     private static short [] get_recording (double duration, int audioSource, int sampleRate, int channelConfig, int audioFormat) {
         int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
