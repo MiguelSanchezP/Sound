@@ -7,34 +7,34 @@ import android.util.Log;
 
 public class ANC {
 
-    private static double duration = 0.1;
-    private static int audioSource = MediaRecorder.AudioSource.MIC;
-    private static int sampleRate = 44100;
-    private static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
-    private static int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+    private static final double duration = 0.1;
+    private static final int audioSource = MediaRecorder.AudioSource.MIC;
+    private static final int sampleRate = 44100;
+    private static final int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+    private static final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
     public static short [] values;
     public static Complex [] fft_values;
+    private static final int N = 4096;
 
     private static final int GAUSSIAN = 0;
     private static final int PARABOLIC = 1;
     private static final String TAG = "ANC";
 
+    private static final AudioRecord audioRecord = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat));
+    private static final short[] Buffer = new short[(int)(sampleRate*(duration))];
+
     public static void performANC () {
         while (MainActivity.ANCStatus) {
             values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
-            fft_values = fft(values, 4096);
-            analyse(fft_values, 4096, GAUSSIAN);
+            fft_values = fft(values, N);
+            analyse(fft_values, N, GAUSSIAN);
         }
-        //Do release of the audiorecord
+        audioRecord.stop();
+        audioRecord.release();
     }
 
-    //Optimization of the buffer variables and all this stuff
-
     private static short [] get_recording (double duration, int audioSource, int sampleRate, int channelConfig, int audioFormat) {
-        int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
-        AudioRecord audioRecord = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, bufferSize);
         audioRecord.startRecording();
-        short[] Buffer = new short[(int)(sampleRate*(duration))];
         audioRecord.read(Buffer, 0, (int)(sampleRate*(duration)));
         return Buffer;
     }

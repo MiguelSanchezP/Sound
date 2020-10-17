@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ANCStatus = !ANCStatus;
                 if (ANCStatus) {
-                    ANCT.start();
+                    new Thread(ANCT).start();
                 }else{
                     ANCT.interrupt();
                 }
