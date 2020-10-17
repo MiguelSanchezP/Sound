@@ -1,8 +1,8 @@
 package com.miguelsanchezp.ancmediaplayer;
 
 public class Complex {
-    private double real;
-    private double imaginary;
+    private final double real;
+    private final double imaginary;
 
     public Complex(double real, double imaginary) {
         this.real = real;

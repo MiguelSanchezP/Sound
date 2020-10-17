@@ -12,9 +12,11 @@ public class ANC {
     private static final int sampleRate = 44100;
     private static final int channelConfig = AudioFormat.CHANNEL_IN_MONO;
     private static final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
-    public static short [] values;
-    public static Complex [] fft_values;
+    private static short [] values;
+    private static Complex [] fft_values;
     private static final int N = 4096;
+    private static final double durationANC = 1;
+    private static short [] ANCVals;
 
     private static final int GAUSSIAN = 0;
     private static final int PARABOLIC = 1;
@@ -27,7 +29,8 @@ public class ANC {
         while (MainActivity.ANCStatus) {
             values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
             fft_values = fft(values, N);
-            analyse(fft_values, N, GAUSSIAN);
+            double [] analysedData = analyse(fft_values, N, GAUSSIAN);
+            generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]);
         }
         audioRecord.stop();
         audioRecord.release();
@@ -61,15 +64,17 @@ public class ANC {
         return output;
     }
 
-    private static void analyse (Complex[] data, int N, int interpolation) {
+    private static double [] analyse (Complex[] data, int N, int interpolation) {
         double[] realValues = new double[N / 2];
         double max = 0.0;
         int max_i = 0;
+        double imaginary = 0.0;
         for (int i = 0; i < data.length / 2; i++) {
             realValues[i] = Math.abs(data[i].getReal()) / N;
             if (realValues[i] > max) {
                 max_i = i;
                 max = realValues[i];
+                imaginary = Math.abs(data[i].getImaginary()/N);
             }
         }
         double delta_m = 0;
@@ -83,6 +88,14 @@ public class ANC {
             }
         }
         double frequency = ((double) sampleRate / N) * (max_i + delta_m);
-        Log.d(TAG, "performANC: frequency being: " + frequency);
+        Log.d(TAG, "performANC: frequency being: " + frequency );
+        Log.d(TAG, "performANC: with phase: " + Math.atan(imaginary/frequency)*180/Math.PI);
+        return new double [] {frequency, Math.atan(imaginary/frequency)};
+    }
+
+    private static void generateFrequency (double duration, double sampleRate, double frequency, double phase) {
+        for (int i = 0; i<sampleRate*duration; i++) {
+            ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767);
+        }
     }
 }
