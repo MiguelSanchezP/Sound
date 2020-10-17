@@ -95,7 +95,7 @@ public class ANC {
 
     private static void generateFrequency (double duration, double sampleRate, double frequency, double phase) {
         for (int i = 0; i<sampleRate*duration; i++) {
-            ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767);
+            ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
     }
 }
