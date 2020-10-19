@@ -1,10 +1,17 @@
 package com.miguelsanchezp.ancmediaplayer;
 
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
+import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class ANC {
 
     private static final double duration = 0.1;
@@ -16,7 +23,6 @@ public class ANC {
     private static Complex [] fft_values;
     private static final int N = 4096;
     private static final double durationANC = 1;
-    private static short [] ANCVals;
 
     private static final int GAUSSIAN = 0;
     private static final int PARABOLIC = 1;
@@ -25,12 +31,16 @@ public class ANC {
     private static final AudioRecord audioRecord = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat));
     private static final short[] Buffer = new short[(int)(sampleRate*(duration))];
 
+    private static final int sessionID = AudioManager.AUDIO_SESSION_ID_GENERATE;
+//    private static final AudioTrack track = new AudioTrack(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), new AudioFormat.Builder().setSampleRate(sampleRate).setEncoding(audioFormat).build(), AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat), AudioTrack.MODE_STATIC, sessionID);
+    private static final AudioTrack track = new AudioTrack.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).setAudioFormat(new AudioFormat.Builder().setEncoding(audioFormat).setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()).setBufferSizeInBytes(AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)).build();
+
     public static void performANC () {
         while (MainActivity.ANCStatus) {
             values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
             fft_values = fft(values, N);
             double [] analysedData = analyse(fft_values, N, GAUSSIAN);
-            generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]);
+            play (generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]));
         }
         audioRecord.stop();
         audioRecord.release();
@@ -93,9 +103,19 @@ public class ANC {
         return new double [] {frequency, Math.atan(imaginary/frequency)};
     }
 
-    private static void generateFrequency (double duration, double sampleRate, double frequency, double phase) {
+    private static short [] generateFrequency (double duration, double sampleRate, double frequency, double phase) {
+        short [] ANCVals = new short [(int)(duration*sampleRate)];
         for (int i = 0; i<sampleRate*duration; i++) {
             ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
+        return ANCVals;
+    }
+
+    private static void play (short [] ANCVals) {
+        Log.d(TAG, "play: begin to load the data");
+        track.write(ANCVals, 0, ANCVals.length);
+        track.setVolume(AudioTrack.getMaxVolume());
+        Log.d(TAG, "play: ended loading the data, playing it");
+        track.play();
     }
 }
