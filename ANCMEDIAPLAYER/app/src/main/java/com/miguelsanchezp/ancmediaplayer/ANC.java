@@ -31,7 +31,7 @@ public class ANC {
 
     private static final int sessionID = AudioManager.AUDIO_SESSION_ID_GENERATE;
 //    private static final AudioTrack track = new AudioTrack(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), new AudioFormat.Builder().setSampleRate(sampleRate).setEncoding(audioFormat).build(), AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat), AudioTrack.MODE_STATIC, sessionID);
-    private static final AudioTrack track = new AudioTrack.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).setAudioFormat(new AudioFormat.Builder().setEncoding(audioFormat).setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()).setBufferSizeInBytes(AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)).build();
+    private static final AudioTrack track = new AudioTrack.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).setAudioFormat(new AudioFormat.Builder().setEncoding(audioFormat).setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()).setBufferSizeInBytes(100*AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)).build();
 
     private static long start;
     private static long end;
@@ -41,7 +41,10 @@ public class ANC {
         while (MainActivity.ANCStatus) {
             short[] values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
             Complex[] fft_values = fft(values, N);
+            long time1 = System.nanoTime();
             double [] analysedData = analyse(fft_values, N, GAUSSIAN);
+            long time2 = System.nanoTime();
+            Log.d(TAG, "play: duration: analyse: " + (double)(time2-time1)/1000000000);
             play (generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]));
         }
         audioRecord.stop();
@@ -107,18 +110,23 @@ public class ANC {
     }
 
     private static short [] generateFrequency (double duration, double sampleRate, double frequency, double phase) {
+        long time1 = System.nanoTime();
         short [] ANCVals = new short [(int)(duration*sampleRate)];
         for (int i = 0; i<sampleRate*duration; i++) {
             ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
+        long time2 = System.nanoTime();
+        Log.d(TAG, "play: duration: generate frequency: " + (double)(time2-time1)/1000000000);
         return ANCVals;
     }
 
     private static void play (short [] ANCVals) {
+        long starttime = System.nanoTime();
         track.write(ANCVals, 0, ANCVals.length);
 //        track.setVolume(AudioTrack.getMaxVolume());
         end=System.nanoTime();
-        Log.d(TAG, "play: duration:" + (double)(end-start)/1000000000);
+        Log.d(TAG, "play: duration: write: " + (double)(end-starttime)/1000000000);
+        Log.d(TAG, "play: duration: total" + (double)(end-start)/1000000000);
         track.play();
     }
 }
