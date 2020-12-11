@@ -6,8 +6,12 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+
+import java.io.File;
+import java.util.ArrayList;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class ANC {
@@ -18,7 +22,7 @@ public class ANC {
     private static final int channelConfig = AudioFormat.CHANNEL_IN_MONO;
     private static final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
     private static final int N = 1024; //4096;
-    private static final double durationANC = 0.5; //1;
+    private static final double durationANC = 0.2; //1;
 
     private static final int GAUSSIAN = 0;
     private static final int PARABOLIC = 1;
@@ -28,12 +32,23 @@ public class ANC {
 
     private static final AudioTrack track = new AudioTrack.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).setAudioFormat(new AudioFormat.Builder().setEncoding(audioFormat).setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()).setBufferSizeInBytes(100*AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)).build();
 
+    private static final String TAG = "ANC";
+
+    private static long initialtime;
+    private static long finaltime;
+    private static ArrayList<Long> analysisTimes = new ArrayList<>();
+    private static ArrayList<Long> trackTimes = new ArrayList<>();
+
     public static void performANC () {
         track.setVolume(AudioTrack.getMaxVolume());
         while (MainActivity.ANCStatus) {
             short[] values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
             Complex[] fft_values = fft(values, N);
+            initialtime = System.nanoTime();
             double [] analysedData = analyse(fft_values, N, GAUSSIAN);
+            finaltime = System.nanoTime();
+            analysisTimes.add(finaltime-initialtime);
+            initialtime = System.nanoTime();
             play (generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]));
         }
         audioRecord.stop();
@@ -97,6 +112,7 @@ public class ANC {
 
     private static short [] generateFrequency (double duration, double sampleRate, double frequency, double phase) {
         short [] ANCVals = new short [(int)(duration*sampleRate)];
+        phase = phase+(2*Math.PI*frequency*0.002);
         for (int i = 0; i<sampleRate*duration; i++) {
             ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
@@ -105,6 +121,15 @@ public class ANC {
 
     private static void play (short [] ANCVals) {
         track.write(ANCVals, 0, ANCVals.length);
+        finaltime = System.nanoTime();
+        trackTimes.add(finaltime-initialtime);
         track.play();
+    }
+
+    public static ArrayList<Long> getAnalysisTimes () {
+        return analysisTimes;
+    }
+    public static ArrayList<Long> getTrackTimes () {
+        return trackTimes;
     }
 }
