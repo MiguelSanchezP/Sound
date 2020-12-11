@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void export (ArrayList<Long> times, String filename) {
-        File file = new File (this.getFilesDir() + filename + ".txt");
+        File file = new File (this.getFilesDir() + "/" + filename + ".txt");
         try {
             OutputStream os = new FileOutputStream(file);
             try {
