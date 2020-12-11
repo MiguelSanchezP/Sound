@@ -11,6 +11,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button ANCButton;
@@ -51,5 +58,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void export (ArrayList<Long> times, String filename) {
+        File file = new File (this.getFilesDir() + filename + ".txt");
+        try {
+            OutputStream os = new FileOutputStream(file);
+            try {
+                for (Long l : times) {
+                    os.write(l.toString().getBytes());
+                    os.write("\n".getBytes());
+                }
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
