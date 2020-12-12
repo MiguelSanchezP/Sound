@@ -15,7 +15,7 @@ new_track_times = []
 new_analysis_times = []
 quocients = []
 
-for i in range(350):
+for i in range(3500):
 	new_track_times.append(int(track_times[i]))
 	new_analysis_times.append(int(analysis_times[i]))
 	quocients.append(int(track_times[i])/int(analysis_times[i]))
