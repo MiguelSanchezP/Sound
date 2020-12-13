@@ -25,6 +25,9 @@ plot1 = plt.figure(1)
 plt.plot(new_analysis_times, new_track_times, 'r*')
 plt.plot(quocients, 'b*')
 plt.axis('equal')
+plt.xlabel ("Analysis function execution time in ns")
+plt.ylabel ("Additional functions execution time in ns")
+plt.title ("Execution times")
 
 data = [new_track_times, new_analysis_times, quocients]
 quocients.sort()
@@ -36,5 +39,7 @@ print ("Third quartile: From " + str(np.percentile(quocients, 50)) + " to " + st
 
 plot2 = plt.figure(2)
 plt.boxplot(data)
+plt.xticks([1,2,3], ["Analysis", "Additional", "Quocients"])
+plt.title ("Box plots")
 plt.show()
 
