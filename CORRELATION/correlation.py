@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
+import numpy as np
 
 f = open ('./track.txt', 'r')
 f2 = open ('./analysis.txt', 'r')
@@ -22,16 +21,14 @@ for i in range(3500):
 	new_analysis_times.append(int(analysis_times[i]))
 	quocients.append(int(track_times[i])/int(analysis_times[i]))
 
-data = [new_track_times, new_analysis_times, quocients]
-
-#plt.boxplot(data)
-#plt.show()
-#sns.set_theme(style="whitegrid")
-#sns.boxplot(new_analysis_times, new_track_times)
-#sns.show()
-
+plot1 = plt.figure(1)
 plt.plot(new_analysis_times, new_track_times, 'r*')
 plt.plot(quocients, 'b*')
 plt.axis('equal')
+
+data = [new_track_times, new_analysis_times, quocients]
+
+plot2 = plt.figure(2)
+plt.boxplot(data)
 plt.show()
 
