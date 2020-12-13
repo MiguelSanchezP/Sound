@@ -31,11 +31,14 @@ plt.title ("Execution times")
 
 data = [new_track_times, new_analysis_times, quotients]
 quotients.sort()
+iqr = np.percentile(quotients, 75) - np.percentile(quotients, 25)
 
 print ("Mean: " + str(np.mean(quotients[quotients.index(np.percentile(quotients, 25)):quotients.index(np.percentile(quotients, 75))])))
 print ("Median: " + str(np.median(quotients)))
 print ("Second quartile: From " + str(np.percentile(quotients, 25)) + " to " + str(np.percentile(quotients, 50)))
 print ("Third quartile: From " + str(np.percentile(quotients, 50)) + " to " + str(np.percentile(quotients, 75)))
+print ("Upper whisker: " + str(np.percentile(quotients, 75)+1.5*iqr))
+print ("Lower whisker: " + str(np.percentile(quotients, 25)-1.5*iqr))
 
 plot2 = plt.figure(2)
 plt.boxplot(data)
