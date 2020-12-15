@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
                     new Thread(ANCT).start();
                 }else{
                     ANCT.interrupt();
-                    export (ANC.getAnalysisTimes(), "analysis");
-                    export (ANC.getTrackTimes(), "track");
+//                    export (ANC.getAnalysisTimes(), "analysis");
+//                    export (ANC.getTrackTimes(), "track");
                 }
             }
         });

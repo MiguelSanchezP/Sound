@@ -34,8 +34,8 @@ public class ANC {
 
     private static final String TAG = "ANC";
 
-    private static long initialtime;
-    private static long finaltime;
+//    private static long initialtime;
+//    private static long finaltime;
     private static ArrayList<Long> analysisTimes = new ArrayList<>();
     private static ArrayList<Long> trackTimes = new ArrayList<>();
 
@@ -44,11 +44,11 @@ public class ANC {
         while (MainActivity.ANCStatus) {
             short[] values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
             Complex[] fft_values = fft(values, N);
-            initialtime = System.nanoTime();
+//            initialtime = System.nanoTime();
             double [] analysedData = analyse(fft_values, N, GAUSSIAN);
-            finaltime = System.nanoTime();
-            analysisTimes.add(finaltime-initialtime);
-            initialtime = System.nanoTime();
+//            finaltime = System.nanoTime();
+//            analysisTimes.add(finaltime-initialtime);
+//            initialtime = System.nanoTime();
             play (generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]));
         }
         audioRecord.stop();
@@ -112,7 +112,7 @@ public class ANC {
 
     private static short [] generateFrequency (double duration, double sampleRate, double frequency, double phase) {
         short [] ANCVals = new short [(int)(duration*sampleRate)];
-        phase = phase+(2*Math.PI*frequency*0.002);
+        phase = phase+(2*Math.PI*frequency*0.002); //add the new calculated values
         for (int i = 0; i<sampleRate*duration; i++) {
             ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
@@ -121,8 +121,8 @@ public class ANC {
 
     private static void play (short [] ANCVals) {
         track.write(ANCVals, 0, ANCVals.length);
-        finaltime = System.nanoTime();
-        trackTimes.add(finaltime-initialtime);
+//        finaltime = System.nanoTime();
+//        trackTimes.add(finaltime-initialtime);
         track.play();
     }
 
