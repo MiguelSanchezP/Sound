@@ -10,6 +10,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +25,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button ANCButton;
+    private Button ANCB;
+    private Switch automaticS;
+    private TextView phaseTV;
+    private SeekBar phaseSB;
+    private EditText frequencyET;
+    private Button acceptB;
 
     public static boolean ANCStatus = false;
 
@@ -44,8 +54,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ANCButton = findViewById(R.id.ancbutton);
-        ANCButton.setOnClickListener(new View.OnClickListener() {
+        ANCB = findViewById(R.id.ancbutton);
+        automaticS = findViewById(R.id.automaticS);
+        phaseTV = findViewById(R.id.phaseTV);
+        phaseSB = findViewById(R.id.phaseSB);
+        frequencyET = findViewById(R.id.frequencyET);
+        acceptB = findViewById(R.id.acceptB);
+        ANCB.setEnabled(false);
+
+        ANCB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ANCStatus = !ANCStatus;
@@ -55,6 +72,25 @@ public class MainActivity extends AppCompatActivity {
                     ANCT.interrupt();
 //                    export (ANC.getAnalysisTimes(), "analysis");
 //                    export (ANC.getTrackTimes(), "track");
+                }
+            }
+        });
+
+        automaticS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    phaseSB.setEnabled(false);
+                    phaseTV.setEnabled(false);
+                    frequencyET.setEnabled(false);
+                    acceptB.setEnabled(false);
+                    ANCB.setEnabled(true);
+                }else{
+                    phaseSB.setEnabled(true);
+                    phaseTV.setEnabled(true);
+                    frequencyET.setEnabled(true);
+                    acceptB.setEnabled(true);
+                    ANCB.setEnabled(false);
                 }
             }
         });
