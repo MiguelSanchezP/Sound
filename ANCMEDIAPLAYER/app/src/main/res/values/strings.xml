@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">ANC Media Player</string>
     <string name="ancbutton">ANC</string>
+    <string name="phaseTV">Phase: </string>
+    <string name="frequencyTV">Frequency: </string>
+    <string name="acceptButton">ACCEPT</string>
+    <string name="automaticRadio">Automatic</string>
 </resources>
