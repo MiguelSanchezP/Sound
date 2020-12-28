@@ -67,9 +67,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ANCStatus = !ANCStatus;
                 if (ANCStatus) {
+                    ANCB.setText(R.string.stop);
                     new Thread(ANCT).start();
                 }else{
                     ANCT.interrupt();
+                    ANCB.setText(R.string.ancbutton);
 //                    export (ANC.getAnalysisTimes(), "analysis");
 //                    export (ANC.getTrackTimes(), "track");
                 }
@@ -91,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
                     frequencyET.setEnabled(true);
                     acceptB.setEnabled(true);
                     ANCB.setEnabled(false);
+                    if (ANCStatus) {
+                        ANCT.interrupt();
+                        ANCStatus = false;
+                        ANCB.setText(R.string.ancbutton);
+                    }
                 }
             }
         });

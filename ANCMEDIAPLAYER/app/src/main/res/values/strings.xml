@@ -5,4 +5,5 @@
     <string name="frequencyTV">Frequency: </string>
     <string name="acceptButton">ACCEPT</string>
     <string name="automaticRadio">Automatic</string>
+    <string name="stop">STOP</string>
 </resources>
