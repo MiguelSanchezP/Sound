@@ -54,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        final Thread ANCM = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MANC.play();
+            }
+        });
+
         ANCB = findViewById(R.id.ancbutton);
         automaticS = findViewById(R.id.automaticS);
         phaseTV = findViewById(R.id.phaseTV);
@@ -75,6 +82,32 @@ public class MainActivity extends AppCompatActivity {
 //                    export (ANC.getAnalysisTimes(), "analysis");
 //                    export (ANC.getTrackTimes(), "track");
                 }
+            }
+        });
+
+        acceptB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MANC.setFrequency(Double.parseDouble(frequencyET.getText().toString()));
+                ANCM.start();
+            }
+        });
+
+        phaseSB.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                double phase = 2*Math.PI*progress/100;
+                MANC.setPhase(phase);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
