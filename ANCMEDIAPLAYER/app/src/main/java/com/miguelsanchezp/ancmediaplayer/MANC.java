@@ -19,10 +19,10 @@ public class MANC {
         public void run() {
             short[] values = new short[(int)(sampleRate*time)];
             for (int i = 0; i<(int)(sampleRate*time); i++) {
-//                values[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767);
-                values[i] = (short)(32767);
+                values[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767);
+//                values[i] = (short)(32767);
             }
-            while (true) {
+            while (MainActivity.MANCStatus) {
                 audioTrack.write(values, 0, values.length);
             }
         }

@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private Button acceptB;
 
     public static boolean ANCStatus = false;
+    public static boolean MANCStatus = false;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -88,8 +89,15 @@ public class MainActivity extends AppCompatActivity {
         acceptB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MANC.setFrequency(Double.parseDouble(frequencyET.getText().toString()));
-                ANCM.start();
+                MANCStatus = !MANCStatus;
+                if (MANCStatus) {
+                    MANC.setFrequency(Double.parseDouble(frequencyET.getText().toString()));
+                    acceptB.setText(R.string.stop);
+                    new Thread(ANCM).start();
+                }else{
+                    ANCM.interrupt();
+                    acceptB.setText(R.string.acceptButton);
+                }
             }
         });
 
@@ -97,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 double phase = 2*Math.PI*progress/100;
+                phaseTV.setText(Double.toString(phase/Math.PI) + "π");
                 MANC.setPhase(phase);
             }
 
