@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         acceptB = findViewById(R.id.acceptB);
         whiteNoiseB = findViewById(R.id.whiteNoiseB);
         ANCB.setEnabled(false);
+        whiteNoiseB.setEnabled(false);
 
         ANCB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 WNStatus = !WNStatus;
                 if (WNStatus) {
-                    MANC.setFrequency(Double.parseDouble(frequencyET.getText().toString()));
                     whiteNoiseB.setText(R.string.stop);
                     new Thread(WN).start();
                 }else{
@@ -154,16 +154,28 @@ public class MainActivity extends AppCompatActivity {
                     frequencyET.setEnabled(false);
                     acceptB.setEnabled(false);
                     ANCB.setEnabled(true);
+                    whiteNoiseB.setEnabled(true);
+                    if (MANCStatus) {
+                        ANCM.interrupt();
+                        MANCStatus = false;
+                        acceptB.setText(R.string.acceptButton);
+                    }
                 }else{
                     phaseSB.setEnabled(true);
                     phaseTV.setEnabled(true);
                     frequencyET.setEnabled(true);
                     acceptB.setEnabled(true);
                     ANCB.setEnabled(false);
+                    whiteNoiseB.setEnabled(false);
                     if (ANCStatus) {
                         ANCT.interrupt();
                         ANCStatus = false;
                         ANCB.setText(R.string.ancbutton);
+                    }
+                    if (WNStatus) {
+                        WN.interrupt();
+                        WNStatus = false;
+                        whiteNoiseB.setText(R.string.WhiteNoiseButton);
                     }
                 }
             }

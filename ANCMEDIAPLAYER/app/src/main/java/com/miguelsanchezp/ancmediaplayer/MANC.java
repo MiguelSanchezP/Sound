@@ -50,7 +50,7 @@ public class MANC {
     static void playWhiteNoise () {
         audioTrack.play();
         audioTrack.setVolume(AudioTrack.getMaxVolume());
-        new Thread(generateWhiteNoise);
+        new Thread(generateWhiteNoise).start();
     }
 
     static void stop () {
