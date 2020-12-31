@@ -6,4 +6,5 @@
     <string name="acceptButton">ACCEPT</string>
     <string name="automaticRadio">Automatic</string>
     <string name="stop">STOP</string>
+    <string name="WhiteNoiseButton">WHITE NOISE</string>
 </resources>

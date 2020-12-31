@@ -31,9 +31,11 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar phaseSB;
     private EditText frequencyET;
     private Button acceptB;
+    private Button whiteNoiseB;
 
     public static boolean ANCStatus = false;
     public static boolean MANCStatus = false;
+    public static boolean WNStatus = false;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -62,12 +64,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        final Thread WN = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MANC.playWhiteNoise();
+            }
+        });
+
         ANCB = findViewById(R.id.ancbutton);
         automaticS = findViewById(R.id.automaticS);
         phaseTV = findViewById(R.id.phaseTV);
         phaseSB = findViewById(R.id.phaseSB);
         frequencyET = findViewById(R.id.frequencyET);
         acceptB = findViewById(R.id.acceptB);
+        whiteNoiseB = findViewById(R.id.whiteNoiseB);
         ANCB.setEnabled(false);
 
         ANCB.setOnClickListener(new View.OnClickListener() {
@@ -97,6 +107,21 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     ANCM.interrupt();
                     acceptB.setText(R.string.acceptButton);
+                }
+            }
+        });
+
+        whiteNoiseB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WNStatus = !WNStatus;
+                if (WNStatus) {
+                    MANC.setFrequency(Double.parseDouble(frequencyET.getText().toString()));
+                    whiteNoiseB.setText(R.string.stop);
+                    new Thread(WN).start();
+                }else{
+                    WN.interrupt();
+                    whiteNoiseB.setText(R.string.WhiteNoiseButton);
                 }
             }
         });

@@ -20,10 +20,20 @@ public class MANC {
     private static final Runnable generateFrequency = new Runnable() {
         @Override
         public void run() {
-            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             while (MainActivity.MANCStatus) {
-//                short[] values = generateValues();
-                byte[] values = generateWhiteNoise();
+                short[] values = frequencyVals();
+                audioTrack.write(values, 0, values.length);
+            }
+        }
+    };
+
+    private static final Runnable generateWhiteNoise = new Runnable() {
+        @Override
+        public void run() {
+            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+            while (MainActivity.WNStatus) {
+                byte[] values = WhiteNoiseVals();
                 audioTrack.write(values, 0, values.length);
             }
         }
@@ -34,6 +44,13 @@ public class MANC {
         audioTrack.play();
         audioTrack.setVolume(AudioTrack.getMaxVolume());
         new Thread(generateFrequency).start();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    static void playWhiteNoise () {
+        audioTrack.play();
+        audioTrack.setVolume(AudioTrack.getMaxVolume());
+        new Thread(generateWhiteNoise);
     }
 
     static void stop () {
@@ -47,7 +64,7 @@ public class MANC {
         MANC.phase = phase;
     }
 
-    private static short[] generateValues () {
+    private static short[] frequencyVals() {
         short[] values = new short[(int)(sampleRate*time)];
         int frames_to_skip = (int)(sampleRate*phase/(2*Math.PI*frequency));
         for (int i = 0; i<(int)(sampleRate*time); i++) {
@@ -63,7 +80,7 @@ public class MANC {
         return values;
     }
 
-    private static byte[] generateWhiteNoise () {
+    private static byte[] WhiteNoiseVals() {
         byte[] values = new byte[(int)(sampleRate*time)];
         Random rand = new Random();
         rand.nextBytes(values);
