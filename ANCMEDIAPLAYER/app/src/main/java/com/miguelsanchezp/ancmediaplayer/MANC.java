@@ -13,9 +13,10 @@ public class MANC {
     private static double frequency;
     private static double phase;
     private static double oldPhase = 0;
-    private static final int sampleRate = 44100;
-    private static final double time = 1;
-    private static final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,100*44100, AudioTrack.MODE_STREAM);
+    private static final int sampleRate = 22050;
+    private static final double time = 0.25;
+    private static final int bufferSize = (int)(sampleRate*time);
+    private static final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,bufferSize, AudioTrack.MODE_STREAM);
 
     private static final Runnable generateFrequency = new Runnable() {
         @Override
@@ -23,6 +24,7 @@ public class MANC {
             Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             while (MainActivity.MANCStatus) {
                 short[] values = frequencyVals();
+                short framesToSkip = (short)(sampleRate*phase/(2*Math.PI*frequency));
                 audioTrack.write(values, 0, values.length);
             }
         }
@@ -42,14 +44,14 @@ public class MANC {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     static void play () {
         audioTrack.play();
-        audioTrack.setVolume(AudioTrack.getMaxVolume());
+//        audioTrack.setVolume(AudioTrack.getMaxVolume());
         new Thread(generateFrequency).start();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     static void playWhiteNoise () {
         audioTrack.play();
-        audioTrack.setVolume(AudioTrack.getMaxVolume());
+//        audioTrack.setVolume(AudioTrack.getMaxVolume());
         new Thread(generateWhiteNoise).start();
     }
 
@@ -66,17 +68,14 @@ public class MANC {
 
     private static short[] frequencyVals() {
         short[] values = new short[(int)(sampleRate*time)];
-        int frames_to_skip = (int)(sampleRate*phase/(2*Math.PI*frequency));
-        for (int i = 0; i<(int)(sampleRate*time); i++) {
-            if (oldPhase != phase) {
-                if (i<=frames_to_skip) {
-                    values[i] = (short)0;
-                }
-            }else{
-                values[i] = (short) (Math.sin(i * frequency * 2 * Math.PI / sampleRate) * 32767);
-            }
+        int frames_to_skip = 0;
+        if (oldPhase!=phase) {
+            frames_to_skip = (int)(sampleRate*phase/(2*Math.PI*frequency));
+            oldPhase = phase;
         }
-        oldPhase = phase;
+        for (int i = frames_to_skip; i<(int)(sampleRate*time); i++) {
+            values[i] = (short) (Math.sin(i * frequency * 2 * Math.PI / sampleRate) * 32767);
+        }
         return values;
     }
 
