@@ -15,7 +15,7 @@ public class MANC {
     private static double oldPhase = 0;
     private static final int sampleRate = 22050;
     private static final double time = 0.25;
-    private static final int bufferSize = (int)(sampleRate*time);
+    private static int bufferSize = (int)(sampleRate*time);
     private static final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,bufferSize, AudioTrack.MODE_STREAM);
     private static final MainActivity ma = new MainActivity();
 
@@ -48,6 +48,7 @@ public class MANC {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     static void play () {
+        bufferSize = (int)Math.round(Math.round((double)sampleRate/frequency)*frequency);
         audioTrack.play();
 //        audioTrack.setVolume(AudioTrack.getMaxVolume());
         new Thread(generateFrequency).start();
@@ -73,20 +74,20 @@ public class MANC {
     }
 
     private static short[] frequencyVals() {
-        short[] values = new short[(int)(sampleRate*time)];
+        short[] values = new short[(bufferSize)];
         int frames_to_skip = 0;
         if (oldPhase!=phase) {
             frames_to_skip = (int)(sampleRate*Math.abs(oldPhase-phase)/(Math.PI*frequency));
             oldPhase = phase;
         }
-        for (int i = frames_to_skip; i<(int)(sampleRate*time); i++) {
+        for (int i = frames_to_skip; i<bufferSize; i++) {
             values[i] = (short) (Math.sin(i * frequency * 2 * Math.PI / sampleRate) * 32767);
         }
         return values;
     }
 
     private static byte[] WhiteNoiseVals() {
-        byte[] values = new byte[(int)(sampleRate*time)];
+        byte[] values = new byte[bufferSize];
         Random rand = new Random();
         rand.nextBytes(values);
         return values;
