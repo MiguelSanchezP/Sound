@@ -8,7 +8,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -39,8 +38,6 @@ public class MainActivity extends AppCompatActivity {
     public static boolean MANCStatus = false;
     public static boolean WNStatus = false;
     public static boolean automaticSisChecked = false;
-
-    private static final String TAG = "MainActivity";
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -193,11 +190,7 @@ public class MainActivity extends AppCompatActivity {
         phaseRotationS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    automaticSisChecked = true;
-                }else{
-                    automaticSisChecked = false;
-                }
+                automaticSisChecked = isChecked;
             }
         });
     }
@@ -222,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
     private static final Runnable changeUI = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "run: it works");
             double phase = MANC.getPhase()+0.01*Math.PI;
             if (phase > Math.PI) {
                 phase -= Math.PI;

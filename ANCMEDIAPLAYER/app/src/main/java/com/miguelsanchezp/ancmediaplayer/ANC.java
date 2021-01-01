@@ -6,11 +6,9 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.io.File;
 import java.util.ArrayList;
 
 @RequiresApi(api = Build.VERSION_CODES.M)

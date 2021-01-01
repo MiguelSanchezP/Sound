@@ -25,11 +25,9 @@ public class MANC {
 //            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             while (MainActivity.MANCStatus) {
                 short[] values = frequencyVals();
-//                short framesToSkip = (short)(sampleRate*phase/(Math.PI*frequency));
                 audioTrack.write(values, 0, values.length);
                 if (MainActivity.automaticSisChecked) {
                     ma.automaticPhaseChange();
-//                    phase = phase+=0.01*Math.PI;
                 }
             }
         }
