@@ -8,6 +8,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -27,15 +28,19 @@ public class MainActivity extends AppCompatActivity {
 
     private Button ANCB;
     private Switch automaticS;
-    private TextView phaseTV;
-    private SeekBar phaseSB;
+    private static TextView phaseTV;
+    private static SeekBar phaseSB;
     private EditText frequencyET;
     private Button acceptB;
     private Button whiteNoiseB;
+    private Switch phaseRotationS;
 
     public static boolean ANCStatus = false;
     public static boolean MANCStatus = false;
     public static boolean WNStatus = false;
+    public static boolean automaticSisChecked = false;
+
+    private static final String TAG = "MainActivity";
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -78,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         frequencyET = findViewById(R.id.frequencyET);
         acceptB = findViewById(R.id.acceptB);
         whiteNoiseB = findViewById(R.id.whiteNoiseB);
+        phaseRotationS = findViewById(R.id.phaseRotationS);
         ANCB.setEnabled(false);
         whiteNoiseB.setEnabled(false);
 
@@ -117,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 WNStatus = !WNStatus;
                 if (WNStatus) {
+                    MANC m = new MANC();
                     whiteNoiseB.setText(R.string.stop);
                     new Thread(WN).start();
                 }else{
@@ -129,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
         phaseSB.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                double phase = 2*Math.PI*progress/100;
-                phaseTV.setText(Double.toString(phase/Math.PI) + "π");
+                double phase = Math.PI*progress/100;
+                phaseTV.setText(Math.round(phase*100/Math.PI)/100.0 + "π");
                 MANC.setPhase(phase);
             }
 
@@ -153,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     phaseTV.setEnabled(false);
                     frequencyET.setEnabled(false);
                     acceptB.setEnabled(false);
+                    phaseRotationS.setEnabled(false);
                     ANCB.setEnabled(true);
                     whiteNoiseB.setEnabled(true);
                     if (MANCStatus) {
@@ -165,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     phaseTV.setEnabled(true);
                     frequencyET.setEnabled(true);
                     acceptB.setEnabled(true);
+                    phaseRotationS.setEnabled(true);
                     ANCB.setEnabled(false);
                     whiteNoiseB.setEnabled(false);
                     if (ANCStatus) {
@@ -177,6 +186,17 @@ public class MainActivity extends AppCompatActivity {
                         WNStatus = false;
                         whiteNoiseB.setText(R.string.WhiteNoiseButton);
                     }
+                }
+            }
+        });
+
+        phaseRotationS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    automaticSisChecked = true;
+                }else{
+                    automaticSisChecked = false;
                 }
             }
         });
@@ -197,5 +217,23 @@ public class MainActivity extends AppCompatActivity {
         }catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private static final Runnable changeUI = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "run: it works");
+            double phase = MANC.getPhase()+0.01*Math.PI;
+            if (phase > Math.PI) {
+                phase -= Math.PI;
+            }
+            phaseSB.setProgress((int)(100*phase/(Math.PI)));
+            phaseTV.setText(Math.round(phase*100/Math.PI)/100.0 + "π");
+            MANC.setPhase(phase);
+        }
+    };
+    
+    void automaticPhaseChange () {
+        runOnUiThread(changeUI);
     }
 }

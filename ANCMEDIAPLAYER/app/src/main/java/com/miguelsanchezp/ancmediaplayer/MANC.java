@@ -17,15 +17,20 @@ public class MANC {
     private static final double time = 0.25;
     private static final int bufferSize = (int)(sampleRate*time);
     private static final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,bufferSize, AudioTrack.MODE_STREAM);
+    private static final MainActivity ma = new MainActivity();
 
     private static final Runnable generateFrequency = new Runnable() {
         @Override
         public void run() {
-            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+//            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             while (MainActivity.MANCStatus) {
                 short[] values = frequencyVals();
-                short framesToSkip = (short)(sampleRate*phase/(2*Math.PI*frequency));
+//                short framesToSkip = (short)(sampleRate*phase/(Math.PI*frequency));
                 audioTrack.write(values, 0, values.length);
+                if (MainActivity.automaticSisChecked) {
+                    ma.automaticPhaseChange();
+//                    phase = phase+=0.01*Math.PI;
+                }
             }
         }
     };
@@ -33,7 +38,7 @@ public class MANC {
     private static final Runnable generateWhiteNoise = new Runnable() {
         @Override
         public void run() {
-            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+//            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             while (MainActivity.WNStatus) {
                 byte[] values = WhiteNoiseVals();
                 audioTrack.write(values, 0, values.length);
@@ -55,9 +60,6 @@ public class MANC {
         new Thread(generateWhiteNoise).start();
     }
 
-    static void stop () {
-        audioTrack.stop();
-    }
     static void setFrequency (double frequency) {
         MANC.frequency = frequency;
     }
@@ -66,11 +68,15 @@ public class MANC {
         MANC.phase = phase;
     }
 
+    static double getPhase () {
+        return phase;
+    }
+
     private static short[] frequencyVals() {
         short[] values = new short[(int)(sampleRate*time)];
         int frames_to_skip = 0;
         if (oldPhase!=phase) {
-            frames_to_skip = (int)(sampleRate*phase/(2*Math.PI*frequency));
+            frames_to_skip = (int)(sampleRate*Math.abs(oldPhase-phase)/(Math.PI*frequency));
             oldPhase = phase;
         }
         for (int i = frames_to_skip; i<(int)(sampleRate*time); i++) {
