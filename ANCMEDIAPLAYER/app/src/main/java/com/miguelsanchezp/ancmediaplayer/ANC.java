@@ -30,8 +30,6 @@ public class ANC {
 
     private static final AudioTrack track = new AudioTrack.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).setAudioFormat(new AudioFormat.Builder().setEncoding(audioFormat).setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()).setBufferSizeInBytes(100*AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)).build();
 
-    private static final String TAG = "ANC";
-
 //    private static long initialtime;
 //    private static long finaltime;
     private static ArrayList<Long> analysisTimes = new ArrayList<>();
