@@ -108,7 +108,7 @@ public class ANC {
 
     private static short [] generateFrequency (double duration, double sampleRate, double frequency, double phase) {
         short [] ANCVals = new short [(int)(duration*sampleRate)];
-        phase = phase+(2*Math.PI*frequency*0.002); //add the new calculated values
+        phase = phase+(2*Math.PI*frequency*0.001568); //according to the mean provided by correlation.py
         for (int i = 0; i<sampleRate*duration; i++) {
             ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
