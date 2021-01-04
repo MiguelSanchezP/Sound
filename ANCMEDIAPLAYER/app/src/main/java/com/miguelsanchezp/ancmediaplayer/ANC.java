@@ -30,8 +30,8 @@ public class ANC {
 
     private static final AudioTrack track = new AudioTrack.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).setAudioFormat(new AudioFormat.Builder().setEncoding(audioFormat).setSampleRate(sampleRate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build()).setBufferSizeInBytes(100*AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)).build();
 
-//    private static long initialtime;
-//    private static long finaltime;
+    private static long initialtime;
+    private static long finaltime;
     private static ArrayList<Long> analysisTimes = new ArrayList<>();
     private static ArrayList<Long> trackTimes = new ArrayList<>();
 
@@ -40,9 +40,9 @@ public class ANC {
         while (MainActivity.ANCStatus) {
             short[] values = get_recording(duration, audioSource, sampleRate, channelConfig, audioFormat);
             Complex[] fft_values = fft(values, N);
-//            initialtime = System.nanoTime();
+            initialtime = System.nanoTime();
             double [] analysedData = analyse(fft_values, N, GAUSSIAN);
-//            finaltime = System.nanoTime();
+            finaltime = System.nanoTime();
 //            analysisTimes.add(finaltime-initialtime);
 //            initialtime = System.nanoTime();
             play (generateFrequency (durationANC, sampleRate, analysedData[0], analysedData[1]));
@@ -108,7 +108,7 @@ public class ANC {
 
     private static short [] generateFrequency (double duration, double sampleRate, double frequency, double phase) {
         short [] ANCVals = new short [(int)(duration*sampleRate)];
-        phase = phase+(2*Math.PI*frequency*0.001568); //according to the mean provided by correlation.py
+        phase = phase+(2*Math.PI*frequency*15.6838*((finaltime-initialtime)/1000000000.0)); //according to the mean provided by correlation.py
         for (int i = 0; i<sampleRate*duration; i++) {
             ANCVals[i] = (short)(Math.sin(i*frequency*2*Math.PI/sampleRate)*32767 + phase);
         }
